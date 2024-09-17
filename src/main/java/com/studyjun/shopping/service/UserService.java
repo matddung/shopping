@@ -1,16 +1,26 @@
 package com.studyjun.shopping.service;
 
-import com.studyjun.shopping.entity.User;
+import com.studyjun.shopping.domain.User;
+import com.studyjun.shopping.dto.UserDto;
+import com.studyjun.shopping.port.UserRepositoryPort;
 import com.studyjun.shopping.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    public User createUser(User user) {
-        return userRepository.save(user);
+    private final UserRepositoryPort userRepositoryPort;
+
+    public User createUser(UserDto userDto) {
+        User user = User.builder()
+                .name(userDto.getName())
+                .age(userDto.getAge())
+                .email(userDto.getEmail())
+                .phoneNumber(userDto.getPhoneNumber())
+                .build();
+        return userRepositoryPort.save(user);
     }
 }
