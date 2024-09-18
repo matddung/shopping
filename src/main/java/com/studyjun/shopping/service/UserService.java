@@ -1,26 +1,95 @@
 package com.studyjun.shopping.service;
 
-import com.studyjun.shopping.domain.User;
-import com.studyjun.shopping.dto.UserDto;
-import com.studyjun.shopping.port.UserRepositoryPort;
+import com.studyjun.shopping.dto.TokenDto;
+import com.studyjun.shopping.dto.request.LoginRequest;
+import com.studyjun.shopping.dto.response.AuthResponse;
+import com.studyjun.shopping.entity.Token;
+import com.studyjun.shopping.repository.TokenRepository;
 import com.studyjun.shopping.repository.UserRepository;
+import com.studyjun.shopping.util.DefaultAssert;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final TokenRepository tokenRepository;
+    private final TokenService tokenService;
 
-    private final UserRepositoryPort userRepositoryPort;
+    public ResponseEntity<?> login(LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getEmail(),
+                        loginRequest.getPassword()
+                )
+        );
 
-    public User createUser(UserDto userDto) {
-        User user = User.builder()
-                .name(userDto.getName())
-                .age(userDto.getAge())
-                .email(userDto.getEmail())
-                .phoneNumber(userDto.getPhoneNumber())
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        TokenDto tokenDto = tokenService.createToken(authentication);
+
+        Token token = Token.builder()
+                .refreshToken(tokenDto.getRefreshToken())
+                .userEmail(tokenDto.getUserEmail())
                 .build();
-        return userRepositoryPort.save(user);
+
+        tokenRepository.save(token);
+
+        AuthResponse authResponse = AuthResponse.builder().accessToken(tokenDto.getAccessToken()).refreshToken(token.getRefreshToken()).build();
+
+        return ResponseEntity.ok(authResponse);
+    }
+
+    public ResponseEntity<?> logout(String refreshToken) {
+        boolean isValid = valid(refreshToken);
+        DefaultAssert.isAuthentication(isValid);
+
+        Optional<Token> token = tokenRepository.findByRefreshToken(refreshToken);
+        tokenRepository.delete(token.get());
+
+        return ResponseEntity.ok("Logout success");
+    }
+
+    public ResponseEntity<?> refresh(String refreshToken) {
+        boolean isValid = valid(refreshToken);
+        DefaultAssert.isAuthentication(isValid);
+
+        Optional<Token> token = tokenRepository.findByRefreshToken(refreshToken);
+        Authentication authentication = tokenService.getAuthenticationByEmail(token.get().getUserEmail());
+
+        TokenDto tokenDto;
+
+        Long expirationTime = tokenService.getExpiration(refreshToken);
+        if (expirationTime > 0) tokenDto = tokenService.refreshToken(authentication, refreshToken);
+        else tokenDto = tokenService.createToken(authentication);
+
+        Token updateToken = token.get().updateRefreshToken(tokenDto.getRefreshToken());
+        tokenRepository.save(updateToken);
+
+        AuthResponse authResponse = AuthResponse.builder().accessToken(tokenDto.getAccessToken()).refreshToken(updateToken.getRefreshToken()).build();
+
+        return ResponseEntity.ok(authResponse);
+    }
+
+    private boolean valid(String refreshToken) {
+        boolean validateCheck = tokenService.validateToken(refreshToken);
+        DefaultAssert.isTrue(validateCheck, "Token is not valid");
+
+        Optional<Token> token = tokenRepository.findByRefreshToken(refreshToken);
+        DefaultAssert.isTrue(token.isPresent(), "Token is not present");
+
+        Authentication authentication = tokenService.getAuthenticationByEmail(token.get().getUserEmail());
+        DefaultAssert.isTrue(token.get().getUserEmail().equals(authentication.getName()), "User authentication failed");
+
+        return true;
     }
 }

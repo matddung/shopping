@@ -1,4 +1,4 @@
-package com.studyjun.shopping.domain;
+package com.studyjun.shopping.entity;
 
 
 import lombok.Builder;
@@ -13,20 +13,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class User {
     @Id
     private String id;
+    private String email;
+    private String password;
     private String name;
     private Integer age;
     private String phoneNumber;
-    private String email;
     private String provider;
     private String providerId;
     private String role;
 
     @Builder
-    public User(String name, Integer age, String phoneNumber, String email, String provider, String providerId, String role) {
+    public User(String email, String password, String name, Integer age, String phoneNumber, String provider, String providerId, String role) {
+        this.email = email;
+        this.password = password;
         this.name = name;
         this.age = age;
         this.phoneNumber = phoneNumber;
-        this.email = email;
         this.provider = provider;
         this.providerId = providerId;
         this.role = role;
