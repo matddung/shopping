@@ -7,6 +7,8 @@ import com.studyjun.shopping.entity.Token;
 import com.studyjun.shopping.repository.TokenRepository;
 import com.studyjun.shopping.repository.UserRepository;
 import com.studyjun.shopping.util.DefaultAssert;
+import com.studyjun.shopping.util.DefaultAuthenticationException;
+import com.studyjun.shopping.util.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -64,20 +66,25 @@ public class UserService {
         DefaultAssert.isAuthentication(isValid);
 
         Optional<Token> token = tokenRepository.findByRefreshToken(refreshToken);
+        DefaultAssert.isOptionalPresent(token);
+
         Authentication authentication = tokenService.getAuthenticationByEmail(token.get().getUserEmail());
 
-        TokenDto tokenDto;
-
         Long expirationTime = tokenService.getExpiration(refreshToken);
-        if (expirationTime > 0) tokenDto = tokenService.refreshToken(authentication, refreshToken);
-        else tokenDto = tokenService.createToken(authentication);
+        if (expirationTime > 0) {
+            TokenDto tokenDto = tokenService.refreshToken(authentication, refreshToken);
+            Token updateToken = token.get().updateRefreshToken(tokenDto.getRefreshToken());
+            tokenRepository.save(updateToken);
 
-        Token updateToken = token.get().updateRefreshToken(tokenDto.getRefreshToken());
-        tokenRepository.save(updateToken);
+            AuthResponse authResponse = AuthResponse.builder()
+                    .accessToken(tokenDto.getAccessToken())
+                    .refreshToken(updateToken.getRefreshToken())
+                    .build();
 
-        AuthResponse authResponse = AuthResponse.builder().accessToken(tokenDto.getAccessToken()).refreshToken(updateToken.getRefreshToken()).build();
+            return ResponseEntity.ok(authResponse);
+        }
 
-        return ResponseEntity.ok(authResponse);
+        throw new DefaultAuthenticationException(ErrorCode.INVALID_AUTHENTICATION);
     }
 
     private boolean valid(String refreshToken) {
@@ -85,7 +92,7 @@ public class UserService {
         DefaultAssert.isTrue(validateCheck, "Token is not valid");
 
         Optional<Token> token = tokenRepository.findByRefreshToken(refreshToken);
-        DefaultAssert.isTrue(token.isPresent(), "Token is not present");
+        DefaultAssert.isOptionalPresent(token);
 
         Authentication authentication = tokenService.getAuthenticationByEmail(token.get().getUserEmail());
         DefaultAssert.isTrue(token.get().getUserEmail().equals(authentication.getName()), "User authentication failed");
