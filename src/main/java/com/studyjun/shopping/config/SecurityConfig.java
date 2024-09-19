@@ -1,5 +1,9 @@
 package com.studyjun.shopping.config;
 
+import com.studyjun.shopping.handler.CustomSimpleUrlAuthenticationFailureHandler;
+import com.studyjun.shopping.handler.CustomSimpleUrlAuthenticationSuccessHandler;
+import com.studyjun.shopping.repository.CustomAuthorizationRequestRepository;
+import com.studyjun.shopping.service.CustomOAuth2Service;
 import com.studyjun.shopping.service.CustomUserDetailsService;
 import com.studyjun.shopping.util.CustomAuthenticationEntryPoint;
 import com.studyjun.shopping.util.CustomOncePerRequestFilter;
@@ -20,6 +24,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
+    private final CustomOAuth2Service oAuth2Service;
+    private final CustomSimpleUrlAuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final CustomSimpleUrlAuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+    private final CustomAuthorizationRequestRepository customAuthorizationRequestRepository;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -28,6 +36,16 @@ public class SecurityConfig {
                 .headers(header -> header.frameOptions().sameOrigin())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(h -> h.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
+                .oauth2Login(o -> o
+                        .authorizationEndpoint(a -> a
+                                .baseUri("/oauth2/authorize")
+                                .authorizationRequestRepository(customAuthorizationRequestRepository))
+                        .redirectionEndpoint(r -> r
+                                .baseUri("/login/oauth2/code/*"))
+                        .userInfoEndpoint(u -> u
+                                .userService(oAuth2Service))
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(oAuth2AuthenticationFailureHandler))
                 .addFilterBefore(customOncePerRequestFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

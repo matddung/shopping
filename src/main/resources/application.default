@@ -5,3 +5,14 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/shopping
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  access:
+    expiration: 3600000 # hours in milliseconds
+  refresh:
+    expiration: 604800000 # 7 days in milliseconds
+
+app:
+  oauth2:
+    authorizedRedirectUris: http://localhost:3000/oauth2/redirect
