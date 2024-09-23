@@ -27,7 +27,6 @@ import static com.studyjun.shopping.repository.CustomAuthorizationRequestReposit
 @RequiredArgsConstructor
 @Component
 public class CustomSimpleUrlAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
     private final TokenService tokenService;
     private final OAuth2Config.OAuth2ConfigHolder oAuth2Config;
     private final TokenRepository tokenRepository;

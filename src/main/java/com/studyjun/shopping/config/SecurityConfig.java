@@ -29,12 +29,21 @@ public class SecurityConfig {
     private final CustomSimpleUrlAuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final CustomAuthorizationRequestRepository customAuthorizationRequestRepository;
 
+    private static final String[] ALLOWED_URIS = {
+
+    };
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+                .cors().disable()
                 .csrf().disable()
+                .formLogin().disable()
                 .headers(header -> header.frameOptions().sameOrigin())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(r -> r
+                        .requestMatchers(ALLOWED_URIS).permitAll()
+                        .anyRequest().authenticated())
                 .exceptionHandling(h -> h.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .oauth2Login(o -> o
                         .authorizationEndpoint(a -> a

@@ -17,17 +17,19 @@ public class User {
     private String password;
     private String name;
     private Integer age;
+    private String address;
     private String phoneNumber;
     private String provider;
     private String providerId;
     private String role;
 
     @Builder
-    public User(String email, String password, String name, Integer age, String phoneNumber, String provider, String providerId, String role) {
+    public User(String email, String password, String name, Integer age, String address, String phoneNumber, String provider, String providerId, String role) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.age = age;
+        this.address = address;
         this.phoneNumber = phoneNumber;
         this.provider = provider;
         this.providerId = providerId;

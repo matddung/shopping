@@ -59,7 +59,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
 
     @Override
     public String getName() {
-        return (String) attributes.getOrDefault("name", String.valueOf(id)); // 이름이 있을 경우 반환, 없으면 ID 반환
+        return (String) attributes.getOrDefault("name", String.valueOf(id));
     }
 
     @Override
