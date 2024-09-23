@@ -2,7 +2,6 @@ package com.studyjun.shopping.service;
 
 import com.studyjun.shopping.dto.request.QuestionRequest;
 import com.studyjun.shopping.entity.Question;
-import com.studyjun.shopping.entity.User;
 import com.studyjun.shopping.repository.QuestionRepository;
 import com.studyjun.shopping.repository.UserRepository;
 import com.studyjun.shopping.util.DefaultAssert;
@@ -36,33 +35,6 @@ public class QuestionService {
         questionRepository.save(question);
 
         return ResponseEntity.ok("Question create success");
-    }
-
-    public ResponseEntity<?> modifyQuestion(UserPrincipal userPrincipal, QuestionRequest questionRequest, String questionId) {
-        Optional<User> userOptional = userRepository.findByEmail(userPrincipal.getEmail());
-        DefaultAssert.isOptionalPresent(userOptional);
-
-        Optional<Question> questionOptional = questionRepository.findById(questionId);
-        DefaultAssert.isOptionalPresent(questionOptional);
-
-        Question question = questionOptional.get();
-
-        if (!userOptional.get().getId().equals(question.getUserId())) {
-            throw new DefaultAuthenticationException(ErrorCode.INVALID_PARAMETER);
-        }
-
-        if (questionRequest.getSubject() != null) {
-            question.setSubject(questionRequest.getSubject());
-        }
-        if (questionRequest.getContent() != null) {
-            question.setContent(questionRequest.getContent());
-        }
-
-        question.setModifiedAt(LocalDateTime.now());
-
-        questionRepository.save(question);
-
-        return ResponseEntity.ok("Question modify success");
     }
 
     public ResponseEntity<?> deleteQuestion(UserPrincipal userPrincipal, String questionId) {

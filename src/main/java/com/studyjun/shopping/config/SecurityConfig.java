@@ -30,7 +30,7 @@ public class SecurityConfig {
     private final CustomAuthorizationRequestRepository customAuthorizationRequestRepository;
 
     private static final String[] ALLOWED_URIS = {
-
+            "/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**"
     };
 
     @Bean
