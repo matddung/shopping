@@ -82,4 +82,18 @@ public class CartService {
 
         return ResponseEntity.ok("Product delete success");
     }
+
+    public ResponseEntity<?> getProductListInCart(UserPrincipal userPrincipal) {
+        Optional<User> userOptional = userRepository.findByEmail(userPrincipal.getEmail());
+        DefaultAssert.isOptionalPresent(userOptional);
+
+        Optional<Cart> cartOptional = cartRepository.findById(userOptional.get().getId());
+        DefaultAssert.isOptionalPresent(cartOptional);
+
+        List<String> productList = cartOptional.get().getProductId();
+
+        List<Product> products = productRepository.findAllById(productList);
+
+        return ResponseEntity.ok(products);
+    }
 }

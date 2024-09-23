@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -23,6 +24,7 @@ import java.util.Date;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class TokenService {
     private final OAuth2Config.OAuth2ConfigHolder oAuth2ConfigHolder;

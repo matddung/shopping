@@ -33,7 +33,7 @@ public class ProductService {
 
         productRepository.save(product);
 
-        return ResponseEntity.ok("Product registration success");
+        return ResponseEntity.ok("Product create success");
     }
 
     public ResponseEntity<?> modifyProduct(String productId, ProductRequest productRequest) {
@@ -81,7 +81,6 @@ public class ProductService {
 
         return ResponseEntity.ok(productOptional.get());
     }
-
 
     // stockQuantity개 이하인 제품 목록 보기
     public ResponseEntity<?> findByStockQuantityLessThanEqual(int stockQuantity) {

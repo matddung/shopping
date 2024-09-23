@@ -24,4 +24,8 @@ public class CartController {
     private ResponseEntity<?> deleteProductInCart(UserPrincipal userPrincipal, String productId) {
         return cartService.deleteProductInCart(userPrincipal, productId);
     }
+
+    private ResponseEntity<?> getProductListInCart(UserPrincipal userPrincipal) {
+        return cartService.getProductListInCart(userPrincipal);
+    }
 }
