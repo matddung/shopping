@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -34,8 +35,8 @@ public class ProductRequest {
     @NotNull
     private String category;
 
-    @Schema(type = "string", example = "Product imageUrl test", description="상품에 대한 이미지주소입니다.")
+    @Schema(type = "MultipartFile", example = "Product image file", description="상품에 대한 이미지 파일입니다.")
     @NotBlank
     @NotNull
-    private String imageUrl;
+    private MultipartFile image;
 }

@@ -4,8 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @Data
+@NoArgsConstructor
 public class  TokenDto {
     private String userEmail;
     private String accessToken;
