@@ -15,12 +15,10 @@ public class Cart {
     @Id
     private String userId;
     private List<String> productId;
-    private String status;
 
     @Builder
-    public Cart(String userId, List<String> productId, String status) {
+    public Cart(String userId, List<String> productId) {
         this.userId = userId;
         this.productId = productId;
-        this.status = status;
     }
 }

@@ -48,7 +48,6 @@ public class CartService {
             cart = Cart.builder()
                     .userId(userOptional.get().getId())
                     .productId(new ArrayList<>(List.of(productId)))
-                    .status("배송 준비 중")
                     .build();
         }
 
