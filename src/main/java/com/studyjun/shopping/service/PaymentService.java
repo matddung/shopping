@@ -5,8 +5,10 @@ import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import com.studyjun.shopping.dto.request.PaymentRequest;
 import com.studyjun.shopping.entity.Order;
+import com.studyjun.shopping.entity.Product;
 import com.studyjun.shopping.repository.OrderRepository;
 import com.studyjun.shopping.repository.PaymentRepository;
+import com.studyjun.shopping.repository.ProductRepository;
 import com.studyjun.shopping.util.UserPrincipal;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional
@@ -25,6 +28,7 @@ import java.time.LocalDateTime;
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
     private IamportClient iamportClient;
 
     @Value("${iamport.api-key}")
@@ -63,6 +67,8 @@ public class PaymentService {
                 order.setStatus("COMPLETED");
                 orderRepository.save(order);
 
+                decreaseStockQuantity(order.getProductIds());
+
                 return ResponseEntity.ok("Payment process success");
             } else {
                 order.setStatus("CANCELLED");
@@ -71,6 +77,19 @@ public class PaymentService {
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during payment verification : " + e.getMessage());
+        }
+    }
+
+    private void decreaseStockQuantity(List<String> productIds) {
+        List<Product> products = productRepository.findAllById(productIds);
+
+        for (Product product : products) {
+            if (product.getStockQuantity() > 0) {
+                product.setStockQuantity(product.getStockQuantity() - 1);
+                productRepository.save(product);
+            } else {
+                throw new RuntimeException("Product out of stock: " + product.getName());
+            }
         }
     }
 }
