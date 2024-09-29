@@ -5,6 +5,7 @@ import com.studyjun.shopping.entity.Product;
 import com.studyjun.shopping.repository.ProductRepository;
 import com.studyjun.shopping.util.DefaultAssert;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,6 +107,23 @@ public class ProductService {
         List<Product> lowStockProducts = productRepository.findByStockQuantityLessThanEqual(stockQuantity);
 
         return ResponseEntity.ok(lowStockProducts);
+    }
+
+    public ResponseEntity<?> getProductList(String category) {
+        List<Product> productList = productRepository.findByCategory(category);
+        return ResponseEntity.ok(productList);
+    }
+
+    public ResponseEntity<?> searchProduct(String name, String sortField, String sortOrder) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortField);
+        List<Product> productList = productRepository.findByNameContaining(name, sort);
+        return ResponseEntity.ok(productList);
+    }
+
+    public ResponseEntity<?> searchProductInCategory(String name, String category, String sortField, String sortOrder) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortField);
+        List<Product> productList = productRepository.findByNameContainingAndCategory(name, category, sort);
+        return ResponseEntity.ok(productList);
     }
 
     private String saveImage(MultipartFile imageFile, String category) {

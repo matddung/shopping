@@ -51,4 +51,32 @@ public class ProductController {
             @Parameter(description = "stockQuantity를 입력해주세요.", required = true) @RequestParam int stockQuantity) {
         return productService.findByStockQuantityLessThanEqual(stockQuantity);
     }
+
+    @Operation(summary = "상품 리스트", description = "선택한 카테고리의 상품 리스트를 보여줍니다.")
+    @GetMapping("/list")
+    private ResponseEntity<?> findByCategory(
+            @Parameter(description = "category를 입력해주세요.", required = true) @RequestParam String category) {
+        return productService.getProductList(category);
+    }
+
+    @Operation(summary = "검색", description = "상품을 검색하고, 지정한 방식대로 정렬합니다.")
+    @GetMapping("/search")
+    private ResponseEntity<?> searchProduct(
+            @Parameter(description = "name를 입력해주세요.", required = true) @RequestParam String name,
+            @Parameter(description = "sortField를 입력해주세요.", required = true) @RequestParam(defaultValue = "name") String sortField,
+            @Parameter(description = "sortOrder를 입력해주세요.", required = true) @RequestParam(defaultValue = "ASC") String sortOrder
+    ) {
+        return productService.searchProduct(name, sortField, sortOrder);
+    }
+
+    @Operation(summary = "카테고리 내 검색",description = "카테고리 내에서 상품 명을 검색합니다.")
+    @GetMapping("/categorySearch")
+    private ResponseEntity<?> searchProductInCategory(
+            @Parameter(description = "name를 입력해주세요.", required = true) @RequestParam String name,
+            @Parameter(description = "category를 입력해주세요.", required = true) @RequestParam String cateogry,
+            @Parameter(description = "sortField를 입력해주세요.", required = true) @RequestParam(defaultValue = "name") String sortField,
+            @Parameter(description = "sortOrder를 입력해주세요.", required = true) @RequestParam(defaultValue = "ASC") String sortOrder
+    ) {
+        return productService.searchProductInCategory(name, cateogry, sortField, sortOrder);
+    }
 }
