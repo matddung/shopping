@@ -18,7 +18,7 @@ public class Payment {
     private String userId;
     private int amount;
     private String status; // PAID, FAILED, CANCELLED
-    private String method; // CARD, ACCOUNT, PHONE
+    private String method;
     private String transactionId;
     private LocalDateTime paymentAt;
 

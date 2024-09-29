@@ -16,7 +16,7 @@ public class User {
     private String email;
     private String password;
     private String name;
-    private Integer age;
+    private String birth;
     private String address;
     private String phoneNumber;
     private String provider;
@@ -24,13 +24,10 @@ public class User {
     private String role;
 
     @Builder
-    public User(String email, String password, String name, Integer age, String address, String phoneNumber, String provider, String providerId, String role) {
+    public User(String email, String password, String name, String provider, String providerId, String role) {
         this.email = email;
         this.password = password;
         this.name = name;
-        this.age = age;
-        this.address = address;
-        this.phoneNumber = phoneNumber;
         this.provider = provider;
         this.providerId = providerId;
         this.role = role;

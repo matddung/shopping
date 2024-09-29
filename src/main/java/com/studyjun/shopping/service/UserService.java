@@ -2,13 +2,16 @@ package com.studyjun.shopping.service;
 
 import com.studyjun.shopping.dto.TokenDto;
 import com.studyjun.shopping.dto.request.LoginRequest;
+import com.studyjun.shopping.dto.request.UserInfoRequest;
 import com.studyjun.shopping.dto.response.AuthResponse;
 import com.studyjun.shopping.entity.Token;
+import com.studyjun.shopping.entity.User;
 import com.studyjun.shopping.repository.TokenRepository;
 import com.studyjun.shopping.repository.UserRepository;
 import com.studyjun.shopping.util.DefaultAssert;
 import com.studyjun.shopping.util.DefaultAuthenticationException;
 import com.studyjun.shopping.util.ErrorCode;
+import com.studyjun.shopping.util.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -87,6 +90,27 @@ public class UserService {
         }
 
         throw new DefaultAuthenticationException(ErrorCode.INVALID_AUTHENTICATION);
+    }
+
+    public ResponseEntity<?> modifyUserInfo(UserInfoRequest userInfoRequest, UserPrincipal userPrincipal) {
+        Optional<User> userOptional = userRepository.findById(userPrincipal.getId());
+        DefaultAssert.isOptionalPresent(userOptional);
+
+        User user = userOptional.get();
+
+        if (userInfoRequest.getPhoneNumber() != null) {
+            user.setPhoneNumber(userInfoRequest.getPhoneNumber());
+        }
+        if (userInfoRequest.getAddress() != null) {
+            user.setAddress(userInfoRequest.getAddress());
+        }
+        if (userInfoRequest.getBirth() != null) {
+            user.setBirth(userInfoRequest.getBirth());
+        }
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok("User information modify success");
     }
 
     private boolean valid(String refreshToken) {

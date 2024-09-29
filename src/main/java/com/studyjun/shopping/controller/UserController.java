@@ -1,7 +1,10 @@
 package com.studyjun.shopping.controller;
 
 import com.studyjun.shopping.dto.request.LoginRequest;
+import com.studyjun.shopping.dto.request.UserInfoRequest;
 import com.studyjun.shopping.service.UserService;
+import com.studyjun.shopping.util.CurrentUser;
+import com.studyjun.shopping.util.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,5 +38,14 @@ public class UserController {
     private ResponseEntity<?> refresh(
             @Parameter(description = "refreshToken를 입력해주세요.", required = true) @RequestParam String refreshToken) {
         return userService.refresh(refreshToken);
+    }
+
+    @Operation(summary = "정보 수정", description = "회원의 정보를 수정합니다.")
+    @PatchMapping("/modify")
+    private ResponseEntity<?> modifyUserInfo(
+            @Parameter(description = "loginRequest를 작성해주세요.", required = true) @RequestBody UserInfoRequest userInfoRequest,
+            @Parameter(description = "Accesstoken을 입력해주세요.", required = true) @CurrentUser UserPrincipal userPrincipal
+            ) {
+        return userService.modifyUserInfo(userInfoRequest, userPrincipal);
     }
 }
